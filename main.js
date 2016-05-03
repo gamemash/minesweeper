@@ -54,12 +54,6 @@ function setupRenderer(world){
   gl.viewport(0, 0, width, height);
   canvas.width = width;
   canvas.height = height;
-  
-
-  //let renderer = new THREE.WebGLRenderer({canvas: canvas, alpha: true});
-  //renderer.setSize(width, height);
-  //renderer.setClearColor(0xcccccc, 1);
-  //return renderer;
 }
 
 let world = null;
@@ -73,15 +67,10 @@ Promise.all([
     createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
       world = newWorld;
       renderer = setupRenderer(world);
-      //camera = new THREE.OrthographicCamera(0, renderer.domElement.offsetWidth, 0, renderer.domElement.offsetHeight, 0.0, 100 );
       scene = createScene(renderer, world);
       render();
     });
 });
-
-//console.log(world.get('tiles').last().get('isMine'));
-
-
 
 function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
