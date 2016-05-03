@@ -1,6 +1,11 @@
 let ShaderLoader = require('./shader_loader.js');
 
+let squareVerticesBuffer = null;
 function initBuffers(gl){
+  if (squareVerticesBuffer){
+    return squareVerticesBuffer;
+  }
+
   let vertices = [
      0.0,  0.0,
      1.0,  0.0,
@@ -10,15 +15,20 @@ function initBuffers(gl){
      0.0,  1.0
   ];
 
-  let squareVerticesBuffer = gl.createBuffer();
+  squareVerticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
   return squareVerticesBuffer;
 }
 
-function initShaders(gl) {
+let shaderPrograms = {};
+function initShaders(shaderName, gl) {
+  if (shaderName in shaderPrograms){
+    return shaderPrograms[shaderName];
+  }
+
   let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(fragmentShader, ShaderLoader.get('tile.frag'));
+  gl.shaderSource(fragmentShader, ShaderLoader.get(shaderName + '.frag'));
   gl.compileShader(fragmentShader);
 
   if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {  
@@ -26,7 +36,7 @@ function initShaders(gl) {
   }
   
   let vertexShader = gl.createShader(gl.VERTEX_SHADER);
-  gl.shaderSource(vertexShader, ShaderLoader.get('tile.vert'));
+  gl.shaderSource(vertexShader, ShaderLoader.get(shaderName + '.vert'));
   gl.compileShader(vertexShader);
 
   if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {  
@@ -50,6 +60,8 @@ function initShaders(gl) {
 
   vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "vertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
+
+  shaderPrograms[shaderName] = shaderProgram;
 
   return shaderProgram;
 }

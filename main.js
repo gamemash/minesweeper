@@ -3,6 +3,7 @@
 let Immutable = require('immutable');
 let Tile = require('./src/tile.js');
 let ShaderLoader = require('./src/shader_loader.js');
+let TextureLoader = require('./src/texture_loader.js');
 
 
 console.log("init");
@@ -29,7 +30,6 @@ function createGame(options){
 }
 
 function createScene(renderer, world){
-  Tile.prototype.setup(gl);
   let scene = [];
   world.get('tiles').forEach(function(tile){
     var plane = new Tile(tile, gl);
@@ -41,7 +41,7 @@ function createScene(renderer, world){
 function setupRenderer(world){
   let canvas = document.getElementById('game-canvas');
   
-  gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+  let gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 
   gl.clearColor(0.75, 0.75, 0.75, 1);
   gl.enable(gl.DEPTH_TEST);
@@ -54,22 +54,27 @@ function setupRenderer(world){
   gl.viewport(0, 0, width, height);
   canvas.width = width;
   canvas.height = height;
+  return gl;
 }
 
 let world = null;
-let renderer = null;
 let gl = null;
 let scene = null;
 
-Promise.all([
+let stuffToLoad = [
   ShaderLoader.load('tile.vert'),
-  ShaderLoader.load('tile.frag')]).then(function(){
-    createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
-      world = newWorld;
-      renderer = setupRenderer(world);
-      scene = createScene(renderer, world);
-      render();
-    });
+  ShaderLoader.load('tile.frag'),
+  TextureLoader.load('tiles.png')
+  ];
+
+Promise.all(stuffToLoad).then(function(){
+  createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
+    world = newWorld;
+    gl = setupRenderer(world);
+    TextureLoader.buildTextures(gl);
+    scene = createScene(gl, world);
+    render();
+  });
 });
 
 function render(){
