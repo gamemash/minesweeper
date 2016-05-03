@@ -38,8 +38,7 @@ function createScene(renderer, world){
   return scene;
 }
 
-function setupRenderer(world){
-  let canvas = document.getElementById('game-canvas');
+function setupRenderer(canvas, world){
   
   let gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 
@@ -60,6 +59,20 @@ function setupRenderer(world){
 let world = null;
 let gl = null;
 let scene = null;
+let canvas = document.getElementById('game-canvas');
+
+
+let clickEvents = new Set();
+let addClick = function(e){
+  let rect = canvas.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = rect.height - e.clientY + Math.round(rect.top);
+  clickEvents.add(Immutable.Map({
+    x: x,
+    y: y
+  }));
+}
+canvas.addEventListener('click', addClick);
 
 let stuffToLoad = [
   ShaderLoader.load('tile.vert'),
@@ -70,7 +83,7 @@ let stuffToLoad = [
 Promise.all(stuffToLoad).then(function(){
   createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
     world = newWorld;
-    gl = setupRenderer(world);
+    gl = setupRenderer(canvas, world);
     TextureLoader.buildTextures(gl);
     scene = createScene(gl, world);
     render();
@@ -79,6 +92,19 @@ Promise.all(stuffToLoad).then(function(){
 
 function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  for (let clickEvent of clickEvents){
+    console.log("clicking on",
+      [
+        Math.floor(clickEvent.get('x') / 32),
+        Math.floor(clickEvent.get('y') / 32)
+      ]
+    );
+  }
+
+  clickEvents = new Set();
+
+
   scene.forEach(function(tile){
     tile.render();
   });
