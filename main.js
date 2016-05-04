@@ -6,7 +6,7 @@ let ShaderLoader = require('./src/shader_loader.js');
 let TextureLoader = require('./src/texture_loader.js');
 
 
-let settings = {rows: 10, cols: 10, mines: 5};
+let settings = {rows: 10, cols: 10, mines: 10};
 
 console.log("init");
 function initTiles(rows, cols, mines){
@@ -28,7 +28,7 @@ function surrounding(tiles, tile, cols){
     let x = i % 3  - 1 + tile.get('x');
     let y = Math.floor(i / 3)  - 1 + tile.get('y');
     let index = y * cols + x;
-    if (index >= 0){
+    if (index >= 0 && tiles.get(index) !== undefined){
       return tiles.get(index);
     } else {
       return false;
