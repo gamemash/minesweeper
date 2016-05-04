@@ -8,16 +8,22 @@ let TextureLoader = require('./src/texture_loader.js');
 let settings = {rows: 10, cols: 10, mines: 10};
 
 function startGame(){
- settings = {
-   cols: parseInt(document.getElementById('cols').value),
-   rows: parseInt(document.getElementById('rows').value),
-   mines: parseInt(document.getElementById('mines').value)
- }
+  settings = {
+    cols: parseInt(document.getElementById('cols').value),
+    rows: parseInt(document.getElementById('rows').value),
+    mines: parseInt(document.getElementById('mines').value)
+  }
 
- console.log(settings);
+  console.log(settings);
 
- world = createGame(settings);
- render();
+  let width = 32 * settings.cols;
+  let height = 32 * settings.rows;
+  gl.viewport(0, 0, width, height);
+  canvas.width = width;
+  canvas.height = height;
+  Tile.setup(gl);
+  world = createGame(settings);
+  render();
 }
 document.getElementById('startGame').onclick = startGame;
 
