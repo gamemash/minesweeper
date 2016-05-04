@@ -6,7 +6,7 @@ let ShaderLoader = require('./src/shader_loader.js');
 let TextureLoader = require('./src/texture_loader.js');
 
 
-let settings = {rows: 10, cols: 10, mines: 10};
+let settings = {rows: 10, cols: 10, mines: 5};
 
 console.log("init");
 function initTiles(rows, cols, mines){
@@ -28,7 +28,7 @@ function surrounding(tiles, tile, cols){
     let x = i % 3  - 1 + tile.get('x');
     let y = Math.floor(i / 3)  - 1 + tile.get('y');
     let index = y * cols + x;
-    if (index > 0){
+    if (index >= 0){
       return tiles.get(index);
     } else {
       return false;
@@ -103,6 +103,16 @@ Promise.all(stuffToLoad).then(function(){
   });
 });
 
+function revealTile(world, tileIndex){
+  world = world.setIn(['tiles', tileIndex, 'isRevealed'], true);
+  if (world.getIn(['tiles', tileIndex, 'surroundingMines']) == 0){
+    surrounding(world.get('tiles'), world.getIn(['tiles', tileIndex]), world.get('columns')).filter(function(tile) { return !tile.get('isRevealed'); }).forEach(function(tile){
+      world = revealTile(world, tile.get('x') + tile.get('y') * world.get('columns'));
+    });
+  }
+  return world;
+}
+
 function renderLoop(){
   for (let clickEvent of clickEvents){
     let position = [
@@ -111,8 +121,7 @@ function renderLoop(){
     ];
     let tile = position[1] * world.get('columns') + position[0];
     if (clickEvent.get('action') == 'left'){
-      //surrounding(world.get('tiles'),world.getIn(['tiles', tile])
-      world = world.setIn(['tiles', tile, 'isRevealed'], true);
+      world = revealTile(world, tile);
     } else {
       world = world.setIn(['tiles', tile, 'isFlagged'], !world.getIn(['tiles', tile, 'isFlagged']));
     }
