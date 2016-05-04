@@ -5,8 +5,22 @@ let Tile = require('./src/tile.js');
 let ShaderLoader = require('./src/shader_loader.js');
 let TextureLoader = require('./src/texture_loader.js');
 
+let settings = {rows: 10, cols: 10, mines: 10};
 
-let settings = {rows: 10, cols: 20, mines: 10};
+function startGame(){
+ settings = {
+   cols: parseInt(document.getElementById('cols').value),
+   rows: parseInt(document.getElementById('rows').value),
+   mines: parseInt(document.getElementById('mines').value)
+ }
+
+ console.log(settings);
+
+ world = createGame(settings);
+ render();
+}
+document.getElementById('startGame').onclick = startGame;
+
 
 function initTiles(rows, cols, mines){
   let tiles = Immutable.List(Immutable.Range(0, rows * cols)).map(function(index){
@@ -36,12 +50,10 @@ function surrounding(tiles, tile, rows, cols){
 }
 
 function createGame(options){
-  return new Promise(function(resolve){
-    resolve(Immutable.Map({
+  return Immutable.Map({
       columns: options.cols,
       rows: options.rows,
       tiles: initTiles(options.rows, options.cols, options.mines)
-    }));
   });
 }
 
@@ -92,14 +104,12 @@ let stuffToLoad = [
 ];
 
 Promise.all(stuffToLoad).then(function(){
-  createGame(settings).then(function(newWorld){
-    world = newWorld;
-    gl = setupRenderer(canvas, world);
-    TextureLoader.buildTextures(gl);
-    Tile.setup(gl);
-    render(world);
-    renderLoop();
-  });
+  world = createGame(settings);
+  gl = setupRenderer(canvas, world);
+  TextureLoader.buildTextures(gl);
+  Tile.setup(gl);
+  render();
+  renderLoop();
 });
 
 function revealTile(world, tileIndex){
@@ -127,12 +137,12 @@ function renderLoop(){
   }
   if (clickEvents.size > 0){
     clickEvents = new Set();
-    render(world);
+    render();
   }
   requestAnimationFrame(renderLoop);
 }
 
-function render(world){
+function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   world.get('tiles').forEach(function(tile){

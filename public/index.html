@@ -8,9 +8,20 @@
   <body>
     <h1>Minesweeper</h1>
 
+    <div id="form">
+      <label for="cols">size:</label>
+      <input type="text" id="cols" value="10"/>
+      x
+      <input type="text" id="rows" value="10"/>
+      <label for="mines">mines:</label>
+      <input type="text" id="mines" name="mines" value="10"/>
+      <button id="startGame">start</button>
+    </div>
     <div id="game-wrapper">
       <canvas id="game-canvas"></canvas>
     </div>
+
+
 
     <script src="js/bundle.js"></script>
   </body>
