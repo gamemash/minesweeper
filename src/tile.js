@@ -17,7 +17,8 @@ let Tile = {
       if (data.get('isMine')){
         texturePosition = [2, 0];
       } else {
-        texturePosition = [3, 0];
+        let n = data.get('surroundingMines');
+        texturePosition = [(n + 3) % 4, Math.floor((n + 3) / 4)];
       }
     }
     let position = [data.get('x'), data.get('y')];

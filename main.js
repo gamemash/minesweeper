@@ -12,7 +12,7 @@ function initTiles(rows, cols, mines){
   for (let y = 0; y < rows; y += 1){
     for (let x = 0; x < cols; x += 1){
       let isMine = Math.random() <  mines / cols / rows;
-      list = list.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false }));
+      list = list.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false, surroundingMines: 8 }));
     }
   }
 
