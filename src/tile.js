@@ -7,6 +7,8 @@ let Tile = {
     Tile.shaderProgram = ShaderHelper.initShaders('tile', gl);
     Tile.buffer = ShaderHelper.initBuffers(gl);
     Tile.texture = TextureLoader.get('tiles.png');
+    gl.useProgram(Tile.shaderProgram);
+    gl.uniform2fv(gl.getUniformLocation(Tile.shaderProgram, "screenSize"), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
   },
   display: function(data, gl){
     let texturePosition = [0, 0];

@@ -6,9 +6,8 @@ let ShaderLoader = require('./src/shader_loader.js');
 let TextureLoader = require('./src/texture_loader.js');
 
 
-let settings = {rows: 10, cols: 10, mines: 10};
+let settings = {rows: 10, cols: 20, mines: 10};
 
-console.log("init");
 function initTiles(rows, cols, mines){
   let tiles = Immutable.List(Immutable.Range(0, rows * cols)).map(function(index){
     let x = index % cols;
