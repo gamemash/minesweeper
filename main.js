@@ -16,18 +16,18 @@ function initTiles(rows, cols, mines){
     return Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false, surroundingMines: 0 });
   });
   tiles = tiles.map(function(tile){
-    return tile.set('surroundingMines', surrounding(tiles, tile, cols).filter(function(tile) { return tile.get('isMine') }).size);
+    return tile.set('surroundingMines', surrounding(tiles, tile, rows, cols).filter(function(tile) { return tile.get('isMine') }).size);
   });
 
   return tiles;
 }
 
-function surrounding(tiles, tile, cols){
+function surrounding(tiles, tile, rows, cols){
   return Immutable.List(Immutable.Range(0, 9).map(function(i){
     let x = i % 3  - 1 + tile.get('x');
     let y = Math.floor(i / 3)  - 1 + tile.get('y');
     let index = y * cols + x;
-    if (index >= 0 && tiles.get(index) !== undefined){
+    if (x >= 0 && x < cols && y >= 0 && y < rows){
       return tiles.get(index);
     } else {
       return false;
@@ -105,7 +105,7 @@ Promise.all(stuffToLoad).then(function(){
 function revealTile(world, tileIndex){
   world = world.setIn(['tiles', tileIndex, 'isRevealed'], true);
   if (world.getIn(['tiles', tileIndex, 'surroundingMines']) == 0){
-    surrounding(world.get('tiles'), world.getIn(['tiles', tileIndex]), world.get('columns')).filter(function(tile) { return !tile.get('isRevealed'); }).forEach(function(tile){
+    surrounding(world.get('tiles'), world.getIn(['tiles', tileIndex]), world.get('rows'), world.get('columns')).filter(function(tile) { return !tile.get('isRevealed'); }).forEach(function(tile){
       world = revealTile(world, tile.get('x') + tile.get('y') * world.get('columns'));
     });
   }
