@@ -12,7 +12,7 @@ function initTiles(rows, cols, mines){
   for (let y = 0; y < rows; y += 1){
     for (let x = 0; x < cols; x += 1){
       let isMine = Math.random() <  mines / cols / rows;
-      list = list.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false }));
+      list = list.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false }));
     }
   }
 
@@ -59,16 +59,21 @@ let addClick = function(e){
   let y = rect.height - e.clientY + Math.round(rect.top);
   clickEvents.add(Immutable.Map({
     x: x,
-    y: y
+    y: y,
+    action: (e.button == 0 ? 'left' : 'right')
   }));
 }
 canvas.addEventListener('click', addClick);
+canvas.oncontextmenu = function (e) {
+  addClick(e);
+  e.preventDefault();
+};
 
 let stuffToLoad = [
   ShaderLoader.load('tile.vert'),
   ShaderLoader.load('tile.frag'),
   TextureLoader.load('tiles.png')
-  ];
+];
 
 Promise.all(stuffToLoad).then(function(){
   createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
@@ -89,7 +94,11 @@ function render(){
       Math.floor(clickEvent.get('y') / 32)
     ];
     let tile = position[1] * world.get('columns') + position[0];
-    world = world.setIn(['tiles', tile, 'isRevealed'], true);
+    if (clickEvent.get('action') == 'left'){
+      world = world.setIn(['tiles', tile, 'isRevealed'], true);
+    } else {
+      world = world.setIn(['tiles', tile, 'isFlagged'], true);
+    }
   }
 
   clickEvents = new Set();

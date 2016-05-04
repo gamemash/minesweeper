@@ -10,8 +10,15 @@ let Tile = {
   },
   render: function(data, gl){
     let texturePosition = [0, 0];
-    if (data.get('isRevealed')){
+    if (data.get('isFlagged')){
       texturePosition = [1, 0];
+    }
+    if (data.get('isRevealed')){
+      if (data.get('isMine')){
+        texturePosition = [2, 0];
+      } else {
+        texturePosition = [3, 0];
+      }
     }
     let position = [data.get('x'), data.get('y')];
 
