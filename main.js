@@ -9,8 +9,8 @@ let TextureLoader = require('./src/texture_loader.js');
 console.log("init");
 function initTiles(rows, cols, mines){
   let list = Immutable.List();
-  for (let x = 0; x < cols; x += 1){
-    for (let y = 0; y < rows; y += 1){
+  for (let y = 0; y < rows; y += 1){
+    for (let x = 0; x < cols; x += 1){
       let isMine = Math.random() <  mines / cols / rows;
       list = list.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false }));
     }
@@ -85,7 +85,6 @@ Promise.all(stuffToLoad).then(function(){
     world = newWorld;
     gl = setupRenderer(canvas, world);
     TextureLoader.buildTextures(gl);
-    scene = createScene(gl, world);
     render();
   });
 });
@@ -94,14 +93,15 @@ function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   for (let clickEvent of clickEvents){
-    console.log("clicking on",
-      [
-        Math.floor(clickEvent.get('x') / 32),
-        Math.floor(clickEvent.get('y') / 32)
-      ]
-    );
+    let position = [
+      Math.floor(clickEvent.get('x') / 32),
+      Math.floor(clickEvent.get('y') / 32)
+    ];
+    let tile = position[1] * world.get('columns') + position[0];
+    world = world.setIn(['tiles', tile, 'isRevealed'], true);
   }
 
+  scene = createScene(gl, world);
   clickEvents = new Set();
 
 

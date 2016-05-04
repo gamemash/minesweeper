@@ -11,6 +11,9 @@ let Tile = function(data, gl){
   this.texture = TextureLoader.get('tiles.png');
 
   this.texturePosition = [0, 0];
+  if (this.data.get('isRevealed')){
+    this.texturePosition = [1, 0];
+  }
 
   this.render = function(){
     gl.useProgram(this.shaderProgram);
@@ -28,8 +31,15 @@ let Tile = function(data, gl){
     gl.uniform1i(gl.getUniformLocation(this.shaderProgram, "tilesTexture"), 0);
     
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
 
-  };
+  //this.update = function(data, gl){
+  //  if (data !== this.data){
+  //    return new Tile(data, gl)
+  //  } else {
+  //    return this;
+  //  }
+  //}
 }
 
 module.exports = Tile;
