@@ -6,19 +6,19 @@ let ShaderLoader = require('./src/shader_loader.js');
 let TextureLoader = require('./src/texture_loader.js');
 
 
+let settings = {rows: 10, cols: 10, mines: 10};
+
 console.log("init");
 function initTiles(rows, cols, mines){
-  let tiles = Immutable.List();
-  for (let y = 0; y < rows; y += 1){
-    for (let x = 0; x < cols; x += 1){
-      let isMine = Math.random() <  mines / cols / rows;
-      tiles = tiles.push(Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false, surroundingMines: 0 }));
-    }
-  }
+  let tiles = Immutable.List(Immutable.Range(0, rows * cols)).map(function(index){
+    let x = index % cols;
+    let y = Math.floor(index / cols);
+    let isMine = Math.random() <  mines / cols / rows;
+    return Immutable.Map({ x: x, y: y, isMine: isMine, isRevealed: false, isFlagged: false, surroundingMines: 0 });
+  });
   tiles = tiles.map(function(tile){
     return tile.set('surroundingMines', surrounding(tiles, tile, cols).filter(function(tile) { return tile.get('isMine') }).size);
   });
-
 
   return tiles;
 }
@@ -93,7 +93,7 @@ let stuffToLoad = [
 ];
 
 Promise.all(stuffToLoad).then(function(){
-  createGame({rows: 10, cols: 10, mines: 5}).then(function(newWorld){
+  createGame(settings).then(function(newWorld){
     world = newWorld;
     gl = setupRenderer(canvas, world);
     TextureLoader.buildTextures(gl);
@@ -114,7 +114,7 @@ function renderLoop(){
       //surrounding(world.get('tiles'),world.getIn(['tiles', tile])
       world = world.setIn(['tiles', tile, 'isRevealed'], true);
     } else {
-      world = world.setIn(['tiles', tile, 'isFlagged'], true);
+      world = world.setIn(['tiles', tile, 'isFlagged'], !world.getIn(['tiles', tile, 'isFlagged']));
     }
   }
   if (clickEvents.size > 0){
