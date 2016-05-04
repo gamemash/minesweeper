@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "immutable": "^3.8.1",
-    "three": "^0.75.0"
+    "immutable": "^3.8.1"
   }
 }
