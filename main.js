@@ -49,7 +49,6 @@ function setupRenderer(canvas, world){
 
 let world = null;
 let gl = null;
-let scene = null;
 let canvas = document.getElementById('game-canvas');
 
 
