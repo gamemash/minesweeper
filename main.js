@@ -81,13 +81,12 @@ Promise.all(stuffToLoad).then(function(){
     gl = setupRenderer(canvas, world);
     TextureLoader.buildTextures(gl);
     Tile.setup(gl);
-    render();
+    render(world);
+    renderLoop();
   });
 });
 
-function render(){
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+function renderLoop(){
   for (let clickEvent of clickEvents){
     let position = [
       Math.floor(clickEvent.get('x') / 32),
@@ -100,12 +99,18 @@ function render(){
       world = world.setIn(['tiles', tile, 'isFlagged'], true);
     }
   }
+  if (clickEvents.size > 0){
+    clickEvents = new Set();
+    render(world);
+  }
+  requestAnimationFrame(renderLoop);
+}
 
-  clickEvents = new Set();
+function render(world){
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   world.get('tiles').forEach(function(tile){
     Tile.display(tile, gl);
   });
-  requestAnimationFrame(render);
 }
 
