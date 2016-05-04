@@ -8,7 +8,7 @@ let Tile = {
     Tile.buffer = ShaderHelper.initBuffers(gl);
     Tile.texture = TextureLoader.get('tiles.png');
   },
-  render: function(data, gl){
+  display: function(data, gl){
     let texturePosition = [0, 0];
     if (data.get('isFlagged')){
       texturePosition = [1, 0];
@@ -22,7 +22,9 @@ let Tile = {
     }
     let position = [data.get('x'), data.get('y')];
 
-
+    Tile.render(gl, position, texturePosition);
+  },
+  render: function(gl, position, texturePosition){
     gl.useProgram(Tile.shaderProgram);
     gl.bindBuffer(gl.ARRAY_BUFFER, Tile.buffer);
     let vertexPositionAttribute = gl.getAttribLocation(Tile.shaderProgram, "vertexPosition");
@@ -37,7 +39,7 @@ let Tile = {
     gl.uniform1i(gl.getUniformLocation(Tile.shaderProgram, "tilesTexture"), 0);
     
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-  }
+  },
 };
 
 module.exports = Tile;

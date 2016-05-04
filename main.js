@@ -104,7 +104,7 @@ function render(){
   clickEvents = new Set();
 
   world.get('tiles').forEach(function(tile){
-    Tile.render(tile, gl);
+    Tile.display(tile, gl);
   });
   requestAnimationFrame(render);
 }
