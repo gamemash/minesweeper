@@ -14,8 +14,6 @@ function startGame(){
     mines: parseInt(document.getElementById('mines').value)
   }
 
-  console.log(settings);
-
   let width = 32 * settings.cols;
   let height = 32 * settings.rows;
   gl.viewport(0, 0, width, height);
@@ -59,7 +57,8 @@ function createGame(options){
   return Immutable.Map({
       columns: options.cols,
       rows: options.rows,
-      tiles: initTiles(options.rows, options.cols, options.mines)
+      tiles: initTiles(options.rows, options.cols, options.mines),
+      gameOver: false
   });
 }
 
@@ -91,15 +90,15 @@ let addClick = function(e){
   let rect = canvas.getBoundingClientRect();
   let x = e.clientX - rect.left;
   let y = rect.height - e.clientY + Math.round(rect.top);
+  let action = (e.button == 0 ? 'left' : 'right');
   clickEvents.add(Immutable.Map({
     x: x,
     y: y,
-    action: (e.button == 0 ? 'left' : 'right')
+    action: action
   }));
 }
-canvas.addEventListener('click', addClick);
+canvas.addEventListener('mousedown', addClick);
 canvas.oncontextmenu = function (e) {
-  addClick(e);
   e.preventDefault();
 };
 
@@ -120,6 +119,9 @@ Promise.all(stuffToLoad).then(function(){
 
 function revealTile(world, tileIndex){
   world = world.setIn(['tiles', tileIndex, 'isRevealed'], true);
+  if (world.getIn(['tiles', tileIndex, 'isMine'])){
+    return world.set('gameOver', true);
+  }
   if (world.getIn(['tiles', tileIndex, 'surroundingMines']) == 0){
     surrounding(world.get('tiles'), world.getIn(['tiles', tileIndex]), world.get('rows'), world.get('columns')).filter(function(tile) { return !tile.get('isRevealed'); }).forEach(function(tile){
       world = revealTile(world, tile.get('x') + tile.get('y') * world.get('columns'));
@@ -129,16 +131,21 @@ function revealTile(world, tileIndex){
 }
 
 function renderLoop(){
-  for (let clickEvent of clickEvents){
-    let position = [
-      Math.floor(clickEvent.get('x') / 32),
-      Math.floor(clickEvent.get('y') / 32)
-    ];
-    let tile = position[1] * world.get('columns') + position[0];
-    if (clickEvent.get('action') == 'left'){
-      world = revealTile(world, tile);
-    } else {
-      world = world.setIn(['tiles', tile, 'isFlagged'], !world.getIn(['tiles', tile, 'isFlagged']));
+  if (!world.get('gameOver')){
+    for (let clickEvent of clickEvents){
+      let position = [
+        Math.floor(clickEvent.get('x') / 32),
+        Math.floor(clickEvent.get('y') / 32)
+      ];
+      let tile = position[1] * world.get('columns') + position[0];
+      switch(clickEvent.get('action')){
+        case 'left':
+          world = revealTile(world, tile);
+          break;
+        case 'right':
+          world = world.setIn(['tiles', tile, 'isFlagged'], !world.getIn(['tiles', tile, 'isFlagged']));
+          break;
+      }
     }
   }
   if (clickEvents.size > 0){
