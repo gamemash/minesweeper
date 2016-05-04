@@ -29,15 +29,6 @@ function createGame(options){
   });
 }
 
-function createScene(renderer, world){
-  let scene = [];
-  world.get('tiles').forEach(function(tile){
-    var plane = new Tile(tile, gl);
-    scene.push(plane);
-  });
-  return scene;
-}
-
 function setupRenderer(canvas, world){
   
   let gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -85,6 +76,7 @@ Promise.all(stuffToLoad).then(function(){
     world = newWorld;
     gl = setupRenderer(canvas, world);
     TextureLoader.buildTextures(gl);
+    Tile.setup(gl);
     render();
   });
 });
@@ -101,12 +93,10 @@ function render(){
     world = world.setIn(['tiles', tile, 'isRevealed'], true);
   }
 
-  scene = createScene(gl, world);
   clickEvents = new Set();
 
-
-  scene.forEach(function(tile){
-    tile.render();
+  world.get('tiles').forEach(function(tile){
+    Tile.render(tile, gl);
   });
   requestAnimationFrame(render);
 }

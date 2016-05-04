@@ -2,44 +2,35 @@ let ShaderHelper = require('./shader_helper.js');
 let TextureLoader = require('./texture_loader.js');
 
 
+let Tile = {
+  setup: function(gl){
+    Tile.shaderProgram = ShaderHelper.initShaders('tile', gl);
+    Tile.buffer = ShaderHelper.initBuffers(gl);
+    Tile.texture = TextureLoader.get('tiles.png');
+  },
+  render: function(data, gl){
+    let texturePosition = [0, 0];
+    if (data.get('isRevealed')){
+      texturePosition = [1, 0];
+    }
+    let position = [data.get('x'), data.get('y')];
 
 
-let Tile = function(data, gl){
-  this.data = data;
-  this.shaderProgram = ShaderHelper.initShaders('tile', gl);
-  this.buffers = ShaderHelper.initBuffers(gl);
-  this.texture = TextureLoader.get('tiles.png');
-
-  this.texturePosition = [0, 0];
-  if (this.data.get('isRevealed')){
-    this.texturePosition = [1, 0];
-  }
-
-  this.render = function(){
-    gl.useProgram(this.shaderProgram);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers);
-    let vertexPositionAttribute = gl.getAttribLocation(this.shaderProgram, "vertexPosition");
+    gl.useProgram(Tile.shaderProgram);
+    gl.bindBuffer(gl.ARRAY_BUFFER, Tile.buffer);
+    let vertexPositionAttribute = gl.getAttribLocation(Tile.shaderProgram, "vertexPosition");
     gl.vertexAttribPointer(vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
 
-    let positionUniformLocation = gl.getUniformLocation(this.shaderProgram, "position");
-    let position = [this.data.get('x'), this.data.get('y')];
+    let positionUniformLocation = gl.getUniformLocation(Tile.shaderProgram, "position");
     gl.uniform2fv(positionUniformLocation, position);
-    gl.uniform2fv(gl.getUniformLocation(this.shaderProgram, "texturePosition"), this.texturePosition);
+    gl.uniform2fv(gl.getUniformLocation(Tile.shaderProgram, "texturePosition"), texturePosition);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    gl.uniform1i(gl.getUniformLocation(this.shaderProgram, "tilesTexture"), 0);
+    gl.bindTexture(gl.TEXTURE_2D, Tile.texture);
+    gl.uniform1i(gl.getUniformLocation(Tile.shaderProgram, "tilesTexture"), 0);
     
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
-
-  //this.update = function(data, gl){
-  //  if (data !== this.data){
-  //    return new Tile(data, gl)
-  //  } else {
-  //    return this;
-  //  }
-  //}
-}
+};
 
 module.exports = Tile;
